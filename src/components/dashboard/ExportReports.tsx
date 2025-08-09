@@ -95,7 +95,7 @@ export function ExportReports({ transactions, accounts, categories }: ExportRepo
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="month">Last Month</SelectItem>
-                <SelectItem value="quarter">Last Quarter</SelectItem<dyad-write path="src/components/dashboard/ExportReports.tsx" description="Completing export reports component">
+                <SelectItem value="quarter">Last Quarter</SelectItem>
                 <SelectItem value="year">Last Year</SelectItem>
               </SelectContent>
             </Select>
