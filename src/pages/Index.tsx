@@ -1,35 +1,4 @@
 import { useEffect } from 'react'
-import { useAuth } from '@/hooks/useAuth'
-import { useAccounts } from '@/hooks/useAccounts'
-import { useTransactions } from '@/hooks/useTransactions'
-import { useCategories } from '@/hooks/useCategories'
-import { SummaryCards } from '@/components/dashboard/SummaryCards'
-import { TransactionList } from '@/components/dashboard/TransactionList'
-import { BudgetOverview } from '@/components/dashboard/BudgetOverview'
-import { SpendingChart } from '@/components/dashboard/SpendingChart'
-import { AddTransactionModal } from '@/components/dashboard/AddTransactionModal'
-import { Button } from '@/components/ui/button'
-import { Skeleton } from '@/components/ui/skeleton'
-import { Card, CardContent } from '@/components/ui/card'
-import { LogOut, Wallet } from 'lucide-react'
-import { toast } from 'sonner'
-
-export default function Index() {
-  const { user, signOut } = useAuth()
-  const { accounts, isLoading: accountsLoading } = useAccounts(user?.id || '')
-  const { transactions, isLoading: transactionsLoading } = useTransactions(user?.id || '')
-  const { categories, isLoading: categoriesLoading } = useCategories(user?.id || '')
-
-  useEffect(() => {
-    if (!user) return
-    
-    // Set up real-time subscriptions
-    const channel = supabase.channel('transactions')
-      .on('postgres_changes', 
-        {Let me continue building the dashboard with the complete Index page and fix the import issue:
-
-<dyad-write path="src/pages/Index.tsx" description="Complete main dashboard page">
-import { useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/hooks/useAuth'
 import { useAccounts } from '@/hooks/useAccounts'
