@@ -6,6 +6,7 @@ import { formatCurrency } from '@/lib/utils'
 import { useAccounts } from '@/hooks/useAccounts'
 import { CreditCard, PiggyBank, Landmark, Wallet, MoreVertical } from 'lucide-react'
 import { AddAccountModal } from './AddAccountModal'
+import { AddFundsModal } from './AddFundsModal' // Import the new modal
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -97,6 +98,9 @@ export function AccountsList({ userId }: AccountsListProps) {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent>
+                    <DropdownMenuItem asChild>
+                      <AddFundsModal userId={userId} account={account} />
+                    </DropdownMenuItem>
                     <DropdownMenuItem 
                       className="text-red-600"
                       onClick={() => handleDeleteAccount(account.id, account.name)}
