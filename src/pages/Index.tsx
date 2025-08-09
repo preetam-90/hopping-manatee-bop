@@ -10,15 +10,12 @@ import { BudgetOverview } from '@/components/dashboard/BudgetOverview'
 import { SpendingChart } from '@/components/dashboard/SpendingChart'
 import { AddTransactionModal } from '@/components/dashboard/AddTransactionModal'
 import { AccountsList } from '@/components/dashboard/AccountsList'
-import { GoalTracker } from '@/components/dashboard/GoalTracker'
-import { InvestmentTracker } from '@/components/dashboard/InvestmentTracker'
-import { DebtTracker } from '@/components/dashboard/DebtTracker'
 import { AdvancedFilters } from '@/components/dashboard/AdvancedFilters'
 import { ExportReports } from '@/components/dashboard/ExportReports'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Card, CardContent } from '@/components/ui/card'
-import { LogOut, Wallet, AlertCircle, TrendingUp, Target, CreditCard } from 'lucide-react'
+import { LogOut, Wallet, AlertCircle } from 'lucide-react'
 import { toast } from 'sonner'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -200,12 +197,9 @@ export default function Index() {
         ) : (
           <div className="space-y-6">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="grid w-full grid-cols-4 lg:grid-cols-7">
+              <TabsList className="grid w-full grid-cols-4">
                 <TabsTrigger value="overview">Overview</TabsTrigger>
                 <TabsTrigger value="transactions">Transactions</TabsTrigger>
-                <TabsTrigger value="goals">Goals</TabsTrigger>
-                <TabsTrigger value="investments">Investments</TabsTrigger>
-                <TabsTrigger value="debt">Debt</TabsTrigger>
                 <TabsTrigger value="reports">Reports</TabsTrigger>
                 <TabsTrigger value="analytics">Analytics</TabsTrigger>
               </TabsList>
@@ -251,21 +245,6 @@ export default function Index() {
                   transactions={filteredTransactions || []} 
                   isLoading={transactionsLoading} 
                 />
-              </TabsContent>
-
-              <TabsContent value="goals" className="space-y-6">
-                <h2 className="text-2xl font-bold dark:text-white">Savings Goals</h2>
-                <GoalTracker userId={user.id} />
-              </TabsContent>
-
-              <TabsContent value="investments" className="space-y-6">
-                <h2 className="text-2xl font-bold dark:text-white">Investment Portfolio</h2>
-                <InvestmentTracker userId={user.id} />
-              </TabsContent>
-
-              <TabsContent value="debt" className="space-y-6">
-                <h2 className="text-2xl font-bold dark:text-white">Debt Management</h2>
-                <DebtTracker userId={user.id} />
               </TabsContent>
 
               <TabsContent value="reports" className="space-y-6">
