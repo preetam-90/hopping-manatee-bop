@@ -2,8 +2,10 @@ import { useState } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Plus, TrendingUp } from 'lucide-react'
+import { TrendingUp } from 'lucide-react'
 import { formatCurrency } from '@/lib/utils'
+import { cn } from '@/lib/utils'
+import { AddInvestmentModal } from '@/components/dashboard/AddInvestmentModal'
 
 interface Investment {
   id: string
@@ -50,10 +52,7 @@ export default function Investments() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold dark:text-white">Investments</h2>
-        <Button>
-          <Plus className="w-4 h-4 mr-2" />
-          Add Investment
-        </Button>
+        <AddInvestmentModal userId={user?.id || ''} />
       </div>
 
       <div className="grid gap-6 md:grid-cols-3">
@@ -81,7 +80,7 @@ export default function Investments() {
         <Card>
           <CardHeader>
             <CardTitle className="text-sm">Total Return</CardTitle>
-          </CardContent>
+          </CardHeader>
           <CardContent>
             <div className={cn(
               "text-2xl font-bold",

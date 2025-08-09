@@ -5,49 +5,8 @@ import { Button } from '@/components/ui/button'
 import { Plus, CreditCard } from 'lucide-react'
 import { Progress } from '@/components/ui/progress'
 import { formatCurrency } from '@/lib/utils'
-
-interface Debt {
-  id: string
-  name: string
-  type: string
-  originalAmount: number
-  currentBalance: number
-  interestRate: number
-  monthlyPayment: number
-  nextPaymentDate: string
-}
-
-export default function Debt() {
-  const { user } = useAuth()
-  const [debts] = useState<Debt[]>([
-    {
-      id: '1',
-      name: 'Credit Card',
-      type: 'Credit Card',
-      originalAmount: 5000,
-      currentBalance: 3200,
-      interestRate: 18.5,
-      monthlyPayment: 150,
-      nextPaymentDate: '2024-02-15'
-    },
-    {
-      id: '2',
-      name: 'Car Loan',
-      type: 'Auto Loan',
-      originalAmount: 25000,
-      currentBalance: 18000,
-      interestRate: 5.9,
-     Let me continue building the debt page and complete the implementation:
-
-<dyad-write path="src/pages/Debt.tsx" description="Debt tracking page - completed">
-import { useState } from 'react'
-import { useAuth } from '@/hooks/useAuth'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Plus, CreditCard } from 'lucide-react'
-import { Progress } from '@/components/ui/progress'
-import { formatCurrency } from '@/lib/utils'
 import { cn } from '@/lib/utils'
+import { AddDebtModal } from '@/components/dashboard/AddDebtModal'
 
 interface Debt {
   id: string
@@ -94,10 +53,7 @@ export default function Debt() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold dark:text-white">Debt Management</h2>
-        <Button>
-          <Plus className="w-4 h-4 mr-2" />
-          Add Debt
-        </Button>
+        <AddDebtModal userId={user?.id || ''} />
       </div>
 
       <div className="grid gap-6 md:grid-cols-3">
