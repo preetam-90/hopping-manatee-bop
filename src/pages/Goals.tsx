@@ -2,9 +2,10 @@ import { useState } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Plus, Target } from 'lucide-react'
+import { Target } from 'lucide-react'
 import { Progress } from '@/components/ui/progress'
 import { formatCurrency } from '@/lib/utils'
+import { AddGoalModal } from '@/components/dashboard/AddGoalModal'
 
 interface Goal {
   id: string
@@ -40,10 +41,7 @@ export default function Goals() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold dark:text-white">Financial Goals</h2>
-        <Button>
-          <Plus className="w-4 h-4 mr-2" />
-          New Goal
-        </Button>
+        <AddGoalModal userId={user?.id || ''} />
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
