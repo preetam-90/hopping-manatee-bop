@@ -21,6 +21,18 @@ export default function Index() {
   const { transactions, isLoading: transactionsLoading } = useTransactions(user?.id || '')
   const { categories, isLoading: categoriesLoading } = useCategories(user?.id || '')
 
+  // Debug logging
+  useEffect(() => {
+    console.log('User:', user)
+    console.log('User ID:', user?.id)
+    console.log('Accounts loading:', accountsLoading)
+    console.log('Transactions loading:', transactionsLoading)
+    console.log('Categories loading:', categoriesLoading)
+    console.log('Accounts data:', accounts)
+    console.log('Transactions data:', transactions)
+    console.log('Categories data:', categories)
+  }, [user, accountsLoading, transactionsLoading, categoriesLoading, accounts, transactions, categories])
+
   useEffect(() => {
     if (!user) return
     
@@ -69,6 +81,9 @@ export default function Index() {
 
   const isLoading = accountsLoading || transactionsLoading || categoriesLoading
 
+  // Show actual data when loaded
+  const showData = !isLoading && accounts && transactions && categories
+
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white shadow-sm border-b">
@@ -91,20 +106,23 @@ export default function Index() {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {isLoading ? (
-          <div className="space-y-6">
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-              {[...Array(4)].map((_, i) => (
-                <Card key={i}>
-                  <CardContent className="pt-6">
-                    <Skeleton className="h-4 w-20 mb-2" />
-                    <Skeleton className="h-8 w-32" />
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-            <div className="grid gap-6 lg:grid-cols-2">
-              <Skeleton className="h-96" />
-              <Skeleton className="h-96" />
+          <div>
+            <p className="text-center mb-4">Loading your financial data...</p>
+            <div className="space-y-6">
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                {[...Array(4)].map((_, i) => (
+                  <Card key={i}>
+                    <CardContent className="pt-6">
+                      <Skeleton className="h-4 w-20 mb-2" />
+                      <Skeleton className="h-8 w-32" />
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+              <div className="grid gap-6 lg:grid-cols-2">
+                <Skeleton className="h-96" />
+                <Skeleton className="h-96" />
+              </div>
             </div>
           </div>
         ) : (
