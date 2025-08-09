@@ -5,16 +5,22 @@ import { Account } from '@/types/database'
 export function useAccounts(userId: string) {
   const queryClient = useQueryClient()
 
-  const { data: accounts, isLoading } = useQuery({
+  const { data: accounts, isLoading, error } = useQuery({
     queryKey: ['accounts', userId],
     queryFn: async () => {
+      console.log('Fetching accounts for user:', userId)
       const { data, error } = await supabase
         .from('accounts')
         .select('*')
         .eq('user_id', userId)
         .order('created_at', { ascending: false })
       
-      if (error) throw error
+      if (error) {
+        console.error('Error fetching accounts:', error)
+        throw error
+      }
+      
+      console.log('Accounts fetched:', data)
       return data as Account[]
     },
     enabled: !!userId,
@@ -70,6 +76,7 @@ export function useAccounts(userId: string) {
   return {
     accounts,
     isLoading,
+    error,
     createAccount,
     updateAccount,
     deleteAccount,

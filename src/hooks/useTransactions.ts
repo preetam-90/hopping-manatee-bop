@@ -5,9 +5,10 @@ import { Transaction } from '@/types/database'
 export function useTransactions(userId: string, accountId?: string) {
   const queryClient = useQueryClient()
 
-  const { data: transactions, isLoading } = useQuery({
+  const { data: transactions, isLoading, error } = useQuery({
     queryKey: ['transactions', userId, accountId],
     queryFn: async () => {
+      console.log('Fetching transactions for user:', userId, 'account:', accountId)
       let query = supabase
         .from('transactions')
         .select(`
@@ -24,7 +25,12 @@ export function useTransactions(userId: string, accountId?: string) {
 
       const { data, error } = await query
       
-      if (error) throw error
+      if (error) {
+        console.error('Error fetching transactions:', error)
+        throw error
+      }
+      
+      console.log('Transactions fetched:', data)
       return data as Transaction[]
     },
     enabled: !!userId,
@@ -83,6 +89,7 @@ export function useTransactions(userId: string, accountId?: string) {
   return {
     transactions,
     isLoading,
+    error,
     createTransaction,
     updateTransaction,
     deleteTransaction,

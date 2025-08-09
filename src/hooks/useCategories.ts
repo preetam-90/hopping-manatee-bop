@@ -5,16 +5,22 @@ import { Category } from '@/types/database'
 export function useCategories(userId: string) {
   const queryClient = useQueryClient()
 
-  const { data: categories, isLoading } = useQuery({
+  const { data: categories, isLoading, error } = useQuery({
     queryKey: ['categories', userId],
     queryFn: async () => {
+      console.log('Fetching categories for user:', userId)
       const { data, error } = await supabase
         .from('categories')
         .select('*')
         .eq('user_id', userId)
         .order('name', { ascending: true })
       
-      if (error) throw error
+      if (error) {
+        console.error('Error fetching categories:', error)
+        throw error
+      }
+      
+      console.log('Categories fetched:', data)
       return data as Category[]
     },
     enabled: !!userId,
@@ -39,6 +45,7 @@ export function useCategories(userId: string) {
   return {
     categories,
     isLoading,
+    error,
     createCategory,
   }
 }

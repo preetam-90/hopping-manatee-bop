@@ -12,26 +12,14 @@ import { AddTransactionModal } from '@/components/dashboard/AddTransactionModal'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Card, CardContent } from '@/components/ui/card'
-import { LogOut, Wallet } from 'lucide-react'
+import { LogOut, Wallet, AlertCircle } from 'lucide-react'
 import { toast } from 'sonner'
 
 export default function Index() {
   const { user, signOut } = useAuth()
-  const { accounts, isLoading: accountsLoading } = useAccounts(user?.id || '')
-  const { transactions, isLoading: transactionsLoading } = useTransactions(user?.id || '')
-  const { categories, isLoading: categoriesLoading } = useCategories(user?.id || '')
-
-  // Debug logging
-  useEffect(() => {
-    console.log('User:', user)
-    console.log('User ID:', user?.id)
-    console.log('Accounts loading:', accountsLoading)
-    console.log('Transactions loading:', transactionsLoading)
-    console.log('Categories loading:', categoriesLoading)
-    console.log('Accounts data:', accounts)
-    console.log('Transactions data:', transactions)
-    console.log('Categories data:', categories)
-  }, [user, accountsLoading, transactionsLoading, categoriesLoading, accounts, transactions, categories])
+  const { accounts, isLoading: accountsLoading, error: accountsError } = useAccounts(user?.id || '')
+  const { transactions, isLoading: transactionsLoading, error: transactionsError } = useTransactions(user?.id || '')
+  const { categories, isLoading: categoriesLoading, error: categoriesError } = useCategories(user?.id || '')
 
   useEffect(() => {
     if (!user) return
@@ -80,9 +68,48 @@ export default function Index() {
   }
 
   const isLoading = accountsLoading || transactionsLoading || categoriesLoading
+  const hasError = accountsError || transactionsError || categoriesError
 
-  // Show actual data when loaded
-  const showData = !isLoading && accounts && transactions && categories
+  if (hasError) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <header className="bg-white shadow-sm border-b">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center h-16">
+              <div className="flex items-center">
+                <Wallet className="w-8 h-8 text-blue-600 mr-3" />
+                <h1 className="text-xl font-semibold">Finance Dashboard</h1>
+              </div>
+              <div className="flex items-center space-x-4">
+                <span className="text-sm text-gray-600">{user.email}</span>
+                <Button variant="ghost" size="sm" onClick={handleSignOut}>
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Sign Out
+                </Button>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <Card className="border-red-200">
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-center flex-col">
+                <AlertCircle className="w-12 h-12 text-red-500 mb-4" />
+                <h2 className="text-xl font-bold mb-2">Error Loading Data</h2>
+                <p className="text-gray-600 mb-4 text-center">
+                  {accountsError?.message || transactionsError?.message || categoriesError?.message}
+                </p>
+                <Button onClick={() => window.location.reload()}>
+                  Refresh Page
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </main>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
