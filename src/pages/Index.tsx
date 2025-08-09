@@ -9,6 +9,7 @@ import { TransactionList } from '@/components/dashboard/TransactionList'
 import { BudgetOverview } from '@/components/dashboard/BudgetOverview'
 import { SpendingChart } from '@/components/dashboard/SpendingChart'
 import { AddTransactionModal } from '@/components/dashboard/AddTransactionModal'
+import { AccountsList } from '@/components/dashboard/AccountsList'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Card, CardContent } from '@/components/ui/card'
@@ -156,23 +157,28 @@ export default function Index() {
           <div className="space-y-6">
             <div className="flex justify-between items-center">
               <h2 className="text-2xl font-bold">Financial Overview</h2>
-              <AddTransactionModal userId={user.id} />
+              <div className="flex gap-2">
+                <AddTransactionModal userId={user.id} />
+              </div>
             </div>
 
             <SummaryCards accounts={accounts || []} transactions={transactions || []} />
 
             <div className="grid gap-6 lg:grid-cols-2">
+              <AccountsList userId={user.id} />
               <SpendingChart transactions={transactions || []} />
+            </div>
+
+            <div className="grid gap-6 lg:grid-cols-2">
               <BudgetOverview 
                 categories={categories || []} 
                 transactions={transactions || []} 
               />
+              <TransactionList 
+                transactions={transactions || []} 
+                isLoading={transactionsLoading} 
+              />
             </div>
-
-            <TransactionList 
-              transactions={transactions || []} 
-              isLoading={transactionsLoading} 
-            />
           </div>
         )}
       </main>
