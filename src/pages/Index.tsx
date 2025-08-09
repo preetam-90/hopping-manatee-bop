@@ -1,19 +1,167 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useEffect } from 'react'
+import { useAuth } from '@/hooks/useAuth'
+import { useAccounts } from '@/hooks/useAccounts'
+import { useTransactions } from '@/hooks/useTransactions'
+import { useCategories } from '@/hooks/useCategories'
+import { SummaryCards } from '@/components/dashboard/SummaryCards'
+import { TransactionList } from '@/components/dashboard/TransactionList'
+import { BudgetOverview } from '@/components/dashboard/BudgetOverview'
+import { SpendingChart } from '@/components/dashboard/SpendingChart'
+import { AddTransactionModal } from '@/components/dashboard/AddTransactionModal'
+import { Button } from '@/components/ui/button'
+import { Skeleton } from '@/components/ui/skeleton'
+import { Card, CardContent } from '@/components/ui/card'
+import { LogOut, Wallet } from 'lucide-react'
+import { toast } from 'sonner'
 
-import { MadeWithDyad } from "@/components/made-with-dyad";
+export default function Index() {
+  const { user, signOut } = useAuth()
+  const { accounts, isLoading: accountsLoading } = useAccounts(user?.id || '')
+  const { transactions, isLoading: transactionsLoading } = useTransactions(user?.id || '')
+  const { categories, isLoading: categoriesLoading } = useCategories(user?.id || '')
 
-const Index = () => {
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-gray-600">
-          Start building your amazing project here!
-        </p>
+  useEffect(() => {
+    if (!user) return
+    
+    // Set up real-time subscriptions
+    const channel = supabase.channel('transactions')
+      .on('postgres_changes', 
+        {Let me continue building the dashboard with the complete Index page and fix the import issue:
+
+<dyad-write path="src/pages/Index.tsx" description="Complete main dashboard page">
+import { useEffect } from 'react'
+import { supabase } from '@/lib/supabase'
+import { useAuth } from '@/hooks/useAuth'
+import { useAccounts } from '@/hooks/useAccounts'
+import { useTransactions } from '@/hooks/useTransactions'
+import { useCategories } from '@/hooks/useCategories'
+import { SummaryCards } from '@/components/dashboard/SummaryCards'
+import { TransactionList } from '@/components/dashboard/TransactionList'
+import { BudgetOverview } from '@/components/dashboard/BudgetOverview'
+import { SpendingChart } from '@/components/dashboard/SpendingChart'
+import { AddTransactionModal } from '@/components/dashboard/AddTransactionModal'
+import { Button } from '@/components/ui/button'
+import { Skeleton } from '@/components/ui/skeleton'
+import { Card, CardContent } from '@/components/ui/card'
+import { LogOut, Wallet } from 'lucide-react'
+import { toast } from 'sonner'
+
+export default function Index() {
+  const { user, signOut } = useAuth()
+  const { accounts, isLoading: accountsLoading } = useAccounts(user?.id || '')
+  const { transactions, isLoading: transactionsLoading } = useTransactions(user?.id || '')
+  const { categories, isLoading: categoriesLoading } = useCategories(user?.id || '')
+
+  useEffect(() => {
+    if (!user) return
+    
+    // Set up real-time subscriptions
+    const channel = supabase.channel('transactions')
+      .on('postgres_changes', 
+        { event: '*', schema: 'public', table: 'transactions', filter: `user_id=eq.${user.id}` },
+        () => {
+          // Real-time updates will be handled by React Query
+        }
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [user])
+
+  const handleSignOut = async () => {
+    const { error } = await signOut()
+    if (error) {
+      toast.error('Error signing out')
+    } else {
+      toast.success('Signed out successfully')
+    }
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <Card className="w-full max-w-md">
+          <CardContent className="pt-6">
+            <div className="text-center">
+              <Wallet className="w-12 h-12 mx-auto mb-4 text-blue-600" />
+              <h2 className="text-2xl font-bold mb-2">Welcome to Finance Dashboard</h2>
+              <p className="text-gray-600 mb-6">Please sign in to access your financial data</p>
+              <Button onClick={() => window.location.href = '/auth'}>
+                Sign In
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       </div>
-      <MadeWithDyad />
-    </div>
-  );
-};
+    )
+  }
 
-export default Index;
+  const isLoading = accountsLoading || transactionsLoading || categoriesLoading
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <header className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center">
+              <Wallet className="w-8 h-8 text-blue-600 mr-3" />
+              <h1 className="text-xl font-semibold">Finance Dashboard</h1>
+            </div>
+            <div className="flex items-center space-x-4">
+              <span className="text-sm text-gray-600">{user.email}</span>
+              <Button variant="ghost" size="sm" onClick={handleSignOut}>
+                <LogOut className="w-4 h-4 mr-2" />
+                Sign Out
+              </Button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {isLoading ? (
+          <div className="space-y-6">
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+              {[...Array(4)].map((_, i) => (
+                <Card key={i}>
+                  <CardContent className="pt-6">
+                    <Skeleton className="h-4 w-20 mb-2" />
+                    <Skeleton className="h-8 w-32" />
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+            <div className="grid gap-6 lg:grid-cols-2">
+              <Skeleton className="h-96" />
+              <Skeleton className="h-96" />
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h2 className="text-2xl font-bold">Financial Overview</h2>
+              <AddTransactionModal userId={user.id} />
+            </div>
+
+            <SummaryCards accounts={accounts || []} transactions={transactions || []} />
+
+            <div className="grid gap-6 lg:grid-cols-2">
+              <SpendingChart transactions={transactions || []} />
+              <BudgetOverview 
+                categories={categories || []} 
+                transactions={transactions || []} 
+              />
+            </div>
+
+            <TransactionList 
+              transactions={transactions || []} 
+              isLoading={transactionsLoading} 
+            />
+          </div>
+        )}
+      </main>
+    </div>
+  )
+}
