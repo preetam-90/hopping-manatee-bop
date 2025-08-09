@@ -1,18 +1,17 @@
-import { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { formatCurrency } from '@/lib/utils'
-import { TrendingUp, TrendingDown, DollarSign, Bitcoin, Home, Briefcase } from 'lucide-react'
-
-interface Investment {
-  id: string
-  name: string
-  type: 'stocks' | 'crypto' | 'real-estate' | 'mutual-fund' | 'bonds'
-  currentValue: number
-  investedAmount: number
-  change: number
-  changePercent: number
-}
+import { TrendingUp, TrendingDown, DollarSign, Bitcoin, Home, Briefcase, MoreVertical } from 'lucide-react'
+import { useInvestments } from '@/hooks/useInvestments'
+import { AddInvestmentModal } from './AddInvestmentModal'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import { toast } from 'sonner'
 
 interface InvestmentTrackerProps {
   userId: string
@@ -23,49 +22,51 @@ const investmentIcons = {
   crypto: <Bitcoin className="w-5 h-5" />,
   'real-estate': <Home className="w-5 h-5" />,
   'mutual-fund': <Briefcase className="w-5 h-5" />,
-  bonds: <DollarSign className="w-5 h-5" />
+  bonds: <DollarSign className="w-5 h-5" />,
+  other: <DollarSign className="w-5 h-5" />
 }
 
 export function InvestmentTracker({ userId }: InvestmentTrackerProps) {
-  const [investments] = useState<Investment[]>([
-    {
-      id: '1',
-      name: 'Tech Stock Portfolio',
-      type: 'stocks',
-      currentValue: 15000,
-      investedAmount: 12000,
-      change: 3000,
-      changePercent: 25
-    },
-    {
-      id: '2',
-      name: 'Bitcoin',
-      type: 'crypto',
-      currentValue: 8000,
-      investedAmount: 10000,
-      change: -2000,
-      changePercent: -20
-    },
-    {
-      id: '3',
-      name: 'Real Estate Fund',
-      type: 'real-estate',
-      currentValue: 25000,
-      investedAmount: 20000,
-      change: 5000,
-      changePercent: 25
-    }
-  ])
+  const { investments, isLoading, deleteInvestment } = useInvestments(userId)
 
-  const totalValue = investments.reduce((sum, inv) => sum + inv.currentValue, 0)
-  const totalInvested = investments.reduce((sum, inv) => sum + inv.investedAmount, 0)
+  const handleDeleteInvestment = async (investmentId: string, investmentName: string) => {
+    if (window.confirm(`Are you sure you want to delete "${investmentName}"?`)) {
+      try {
+        await deleteInvestment.mutateAsync(investmentId)
+        toast.success('Investment deleted successfully')
+      } catch (error) {
+        toast.error('Failed to delete investment')
+      }
+    }
+  }
+
+  const totalValue = investments?.reduce((sum, inv) => sum + inv.current_value, 0) || 0
+  const totalInvested = investments?.reduce((sum, inv) => sum + inv.invested_amount, 0) || 0
   const totalGainLoss = totalValue - totalInvested
   const totalGainLossPercent = totalInvested > 0 ? (totalGainLoss / totalInvested) * 100 : 0
 
+  if (isLoading) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Investment Portfolio</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {[...Array(2)].map((_, i) => (
+              <div key={i} className="h-24 bg-gray-100 rounded animate-pulse" />
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    )
+  }
+
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>Investment Portfolio</CardTitle>
+        <AddInvestmentModal userId={userId} />
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
@@ -87,35 +88,55 @@ export function InvestmentTracker({ userId }: InvestmentTrackerProps) {
           </div>
 
           <div className="space-y-3">
-            {investments.map((investment) => (
-              <div key={investment.id} className="flex items-center justify-between p-3 border rounded-lg">
-                <div className="flex items-center space-x-3">
-                  <div className="p-2 bg-blue-100 rounded-full">
-                    {investmentIcons[investment.type]}
+            {investments?.map((investment) => {
+              const change = investment.current_value - investment.invested_amount
+              const changePercent = investment.invested_amount > 0 ? (change / investment.invested_amount) * 100 : 0
+
+              return (
+                <div key={investment.id} className="relative flex items-center justify-between p-3 border rounded-lg">
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2 bg-blue-100 rounded-full">
+                      {investmentIcons[investment.type]}
+                    </div>
+                    <div>
+                      <p className="font-medium">{investment.name}</p>
+                      <Badge variant="outline" className="text-xs">
+                        {investment.type.replace('-', ' ').toUpperCase()}
+                      </Badge>
+                    </div>
                   </div>
-                  <div>
-                    <p className="font-medium">{investment.name}</p>
-                    <Badge variant="outline" className="text-xs">
-                      {investment.type.replace('-', ' ').toUpperCase()}
-                    </Badge>
+                  
+                  <div className="text-right">
+                    <p className="font-semibold">{formatCurrency(investment.current_value)}</p>
+                    <p className={`text-sm ${change >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                      {change >= 0 ? '+' : ''}{formatCurrency(change)} ({changePercent.toFixed(1)}%)
+                    </p>
                   </div>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="sm" className="absolute top-2 right-2">
+                        <MoreVertical className="w-4 h-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                      <DropdownMenuItem 
+                        className="text-red-600"
+                        onClick={() => handleDeleteInvestment(investment.id, investment.name)}
+                      >
+                        Delete Investment
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
-                
-                <div className="text-right">
-                  <p className="font-semibold">{formatCurrency(investment.currentValue)}</p>
-                  <p className={`text-sm ${investment.change >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                    {investment.change >= 0 ? '+' : ''}{formatCurrency(investment.change)} ({investment.changePercent}%)
-                  </p>
-                </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
 
-          {investments.length === 0 && (
+          {investments?.length === 0 && (
             <div className="text-center py-8">
               <DollarSign className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
               <p className="text-muted-foreground mb-4">No investments tracked yet</p>
-              <Button>Add Investment</Button>
+              <AddInvestmentModal userId={userId} />
             </div>
           )}
         </div>

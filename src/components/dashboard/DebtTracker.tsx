@@ -1,21 +1,18 @@
-import { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { formatCurrency } from '@/lib/utils'
-import { CreditCard, Home, Car, GraduationCap } from 'lucide-react'
-
-interface Debt {
-  id: string
-  name: string
-  type: 'credit-card' | 'mortgage' | 'auto-loan' | 'student-loan' | 'personal-loan'
-  originalAmount: number
-  currentBalance: number
-  interestRate: number
-  monthlyPayment: number
-  nextPaymentDate: string
-  remainingPayments: number
-}
+import { CreditCard, Home, Car, GraduationCap, MoreVertical } from 'lucide-react'
+import { useDebts } from '@/hooks/useDebts'
+import { AddDebtModal } from './AddDebtModal'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import { toast } from 'sonner'
 
 interface DebtTrackerProps {
   userId: string
@@ -26,44 +23,51 @@ const debtIcons = {
   'mortgage': <Home className="w-5 h-5" />,
   'auto-loan': <Car className="w-5 h-5" />,
   'student-loan': <GraduationCap className="w-5 h-5" />,
-  'personal-loan': <CreditCard className="w-5 h-5" />
+  'personal-loan': <CreditCard className="w-5 h-5" />,
+  'other': <CreditCard className="w-5 h-5" />
 }
 
 export function DebtTracker({ userId }: DebtTrackerProps) {
-  const [debts] = useState<Debt[]>([
-    {
-      id: '1',
-      name: 'Credit Card - Chase',
-      type: 'credit-card',
-      originalAmount: 5000,
-      currentBalance: 2500,
-      interestRate: 18.5,
-      monthlyPayment: 200,
-      nextPaymentDate: '2024-02-15',
-      remainingPayments: 15
-    },
-    {
-      id: '2',
-      name: 'Auto Loan - Honda',
-      type: 'auto-loan',
-      originalAmount: 25000,
-      currentBalance: 18000,
-      interestRate: 4.5,
-      monthlyPayment: 450,
-      nextPaymentDate: '2024-02-20',
-      remainingPayments: 45
-    }
-  ])
+  const { debts, isLoading, deleteDebt } = useDebts(userId)
 
-  const totalDebt = debts.reduce((sum, debt) => sum + debt.currentBalance, 0)
-  const totalOriginal = debts.reduce((sum, debt) => sum + debt.originalAmount, 0)
+  const handleDeleteDebt = async (debtId: string, debtName: string) => {
+    if (window.confirm(`Are you sure you want to delete "${debtName}"?`)) {
+      try {
+        await deleteDebt.mutateAsync(debtId)
+        toast.success('Debt deleted successfully')
+      } catch (error) {
+        toast.error('Failed to delete debt')
+      }
+    }
+  }
+
+  const totalDebt = debts?.reduce((sum, debt) => sum + debt.current_balance, 0) || 0
+  const totalOriginal = debts?.reduce((sum, debt) => sum + debt.original_amount, 0) || 0
   const totalPaid = totalOriginal - totalDebt
   const overallProgress = totalOriginal > 0 ? (totalPaid / totalOriginal) * 100 : 0
 
+  if (isLoading) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Debt Overview</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {[...Array(2)].map((_, i) => (
+              <div key={i} className="h-32 bg-gray-100 rounded animate-pulse" />
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    )
+  }
+
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>Debt Overview</CardTitle>
+        <AddDebtModal userId={userId} />
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
@@ -83,8 +87,8 @@ export function DebtTracker({ userId }: DebtTrackerProps) {
           </div>
 
           <div className="space-y-3">
-            {debts.map((debt) => {
-              const progress = ((debt.originalAmount - debt.currentBalance) / debt.originalAmount) * 100
+            {debts?.map((debt) => {
+              const progress = ((debt.original_amount - debt.current_balance) / debt.original_amount) * 100
               
               return (
                 <div key={debt.id} className="space-y-2 p-3 border rounded-lg">
@@ -101,8 +105,8 @@ export function DebtTracker({ userId }: DebtTrackerProps) {
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="font-semibold">{formatCurrency(debt.currentBalance)}</p>
-                      <p className="text-xs text-muted-foreground">{debt.interestRate}% APR</p>
+                      <p className="font-semibold">{formatCurrency(debt.current_balance)}</p>
+                      <p className="text-xs text-muted-foreground">{debt.interest_rate}% APR</p>
                     </div>
                   </div>
                   
@@ -115,19 +119,34 @@ export function DebtTracker({ userId }: DebtTrackerProps) {
                   </div>
                   
                   <div className="flex justify-between text-sm text-muted-foreground">
-                    <span>Payment: {formatCurrency(debt.monthlyPayment)}/mo</span>
-                    <span>Next: {debt.nextPaymentDate}</span>
+                    <span>Payment: {formatCurrency(debt.monthly_payment)}/mo</span>
+                    {debt.next_payment_date && <span>Next: {debt.next_payment_date}</span>}
                   </div>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="sm" className="absolute top-2 right-2">
+                        <MoreVertical className="w-4 h-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                      <DropdownMenuItem 
+                        className="text-red-600"
+                        onClick={() => handleDeleteDebt(debt.id, debt.name)}
+                      >
+                        Delete Debt
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
               )
             })}
           </div>
 
-          {debts.length === 0 && (
+          {debts?.length === 0 && (
             <div className="text-center py-8">
               <CreditCard className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
               <p className="text-muted-foreground mb-4">No debts tracked yet</p>
-              <Button>Add Debt</Button>
+              <AddDebtModal userId={userId} />
             </div>
           )}
         </div>

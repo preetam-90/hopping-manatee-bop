@@ -73,6 +73,37 @@ export interface Database {
         Insert: Omit<Database['public']['Tables']['user_profiles']['Row'], 'id' | 'created_at' | 'updated_at'>
         Update: Partial<Database['public']['Tables']['user_profiles']['Insert']>
       }
+      debts: {
+        Row: {
+          id: string
+          user_id: string
+          name: string
+          type: 'credit-card' | 'mortgage' | 'auto-loan' | 'student-loan' | 'personal-loan' | 'other'
+          original_amount: number
+          current_balance: number
+          interest_rate: number
+          monthly_payment: number
+          next_payment_date: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: Omit<Database['public']['Tables']['debts']['Row'], 'id' | 'created_at' | 'updated_at'>
+        Update: Partial<Database['public']['Tables']['debts']['Insert']>
+      }
+      investments: {
+        Row: {
+          id: string
+          user_id: string
+          name: string
+          type: 'stocks' | 'crypto' | 'real-estate' | 'mutual-fund' | 'bonds' | 'other'
+          current_value: number
+          invested_amount: number
+          created_at: string
+          updated_at: string
+        }
+        Insert: Omit<Database['public']['Tables']['investments']['Row'], 'id' | 'created_at' | 'updated_at'>
+        Update: Partial<Database['public']['Tables']['investments']['Insert']>
+      }
     }
   }
 }
@@ -82,3 +113,5 @@ export type Transaction = Database['public']['Tables']['transactions']['Row']
 export type Category = Database['public']['Tables']['categories']['Row']
 export type Budget = Database['public']['Tables']['budgets']['Row']
 export type UserProfile = Database['public']['Tables']['user_profiles']['Row']
+export type Debt = Database['public']['Tables']['debts']['Row']
+export type Investment = Database['public']['Tables']['investments']['Row']
