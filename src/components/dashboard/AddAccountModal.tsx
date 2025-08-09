@@ -120,6 +120,7 @@ export function AddAccountModal({ userId }: AddAccountModalProps) {
                 <SelectItem value="GBP">GBP (£)</SelectItem>
                 <SelectItem value="JPY">JPY (¥)</SelectItem>
                 <SelectItem value="CAD">CAD (C$)</SelectItem>
+                <SelectItem value="INR">INR (₹)</SelectItem>
               </SelectContent>
             </Select>
           </div>
