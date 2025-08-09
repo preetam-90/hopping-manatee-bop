@@ -8,6 +8,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { CalendarIcon, Filter } from 'lucide-react'
 import { format } from 'date-fns'
 import { cn } from '@/lib/utils'
+import { Card, CardContent } from '@/components/ui/card' // Added import
 
 interface AdvancedFiltersProps {
   onFilterChange: (filters: any) => void
