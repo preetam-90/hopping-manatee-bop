@@ -6,9 +6,6 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
 import { Shell } from '@/layouts/Shell'
 import Overview from "./pages/Overview"
 import Transactions from "./pages/Transactions"
-import Goals from "./pages/Goals"
-import Investments from "./pages/Investments"
-import Debt from "./pages/Debt"
 import Reports from "./pages/Reports"
 import Analytics from "./pages/Analytics"
 import Auth from "./pages/Auth"
@@ -35,9 +32,7 @@ function AppContent() {
         <Route element={user ? <Shell /> : <Navigate to="/auth" />}>
           <Route path="/" element={<Overview />} />
           <Route path="/transactions" element={<Transactions />} />
-          <Route path="/goals" element={<Goals />} />
-          <Route path="/investments" element={<Investments />} />
-          <Route path="/debt" element={<Debt />} />
+          {/* Removed Goals, Investments, Debt routes */}
           <Route path="/reports" element={<Reports />} />
           <Route path="/analytics" element={<Analytics />} />
         </Route>

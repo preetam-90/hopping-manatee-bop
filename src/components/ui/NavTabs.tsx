@@ -4,9 +4,7 @@ import { cn } from '@/lib/utils'
 const tabs = [
   { id: 'overview', label: 'Overview', path: '/' },
   { id: 'transactions', label: 'Transactions', path: '/transactions' },
-  { id: 'goals', label: 'Goals', path: '/goals' },
-  { id: 'investments', label: 'Investments', path: '/investments' },
-  { id: 'debt', label: 'Debt', path: '/debt' },
+  // Removed Goals, Investments, Debt tabs
   { id: 'reports', label: 'Reports', path: '/reports' },
   { id: 'analytics', label: 'Analytics', path: '/analytics' },
 ]
