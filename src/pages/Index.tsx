@@ -24,12 +24,12 @@ export default function Index() {
   useEffect(() => {
     if (!user) return
     
-    // Set up real-time subscriptions
     const channel = supabase.channel('transactions')
-      .on('postgres_changes', 
+      .on(
+        'postgres_changes',
         { event: '*', schema: 'public', table: 'transactions', filter: `user_id=eq.${user.id}` },
         () => {
-          // Real-time updates will be handled by React Query
+          // Real-time updates handled by React Query
         }
       )
       .subscribe()
