@@ -15,6 +15,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Card, CardContent } from '@/components/ui/card'
 import { LogOut, Wallet, AlertCircle } from 'lucide-react'
 import { toast } from 'sonner'
+import { ThemeToggle } from '@/components/theme-toggle'
 
 export default function Index() {
   const { user, signOut } = useAuth()
@@ -51,13 +52,13 @@ export default function Index() {
 
   if (!user) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
         <Card className="w-full max-w-md">
           <CardContent className="pt-6">
             <div className="text-center">
               <Wallet className="w-12 h-12 mx-auto mb-4 text-blue-600" />
               <h2 className="text-2xl font-bold mb-2">Welcome to Finance Dashboard</h2>
-              <p className="text-gray-600 mb-6">Please sign in to access your financial data</p>
+              <p className="text-gray-600 dark:text-gray-400 mb-6">Please sign in to access your financial data</p>
               <Button onClick={() => window.location.href = '/auth'}>
                 Sign In
               </Button>
@@ -73,16 +74,17 @@ export default function Index() {
 
   if (hasError) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <header className="bg-white shadow-sm border-b">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+        <header className="bg-white dark:bg-gray-800 shadow-sm border-b dark:border-gray-700">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center h-16">
               <div className="flex items-center">
                 <Wallet className="w-8 h-8 text-blue-600 mr-3" />
-                <h1 className="text-xl font-semibold">Finance Dashboard</h1>
+                <h1 className="text-xl font-semibold dark:text-white">Finance Dashboard</h1>
               </div>
               <div className="flex items-center space-x-4">
-                <span className="text-sm text-gray-600">{user.email}</span>
+                <ThemeToggle />
+                <span className="text-sm text-gray-600 dark:text-gray-300">{user.email}</span>
                 <Button variant="ghost" size="sm" onClick={handleSignOut}>
                   <LogOut className="w-4 h-4 mr-2" />
                   Sign Out
@@ -93,12 +95,12 @@ export default function Index() {
         </header>
 
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <Card className="border-red-200">
+          <Card className="border-red-200 dark:border-red-800">
             <CardContent className="pt-6">
               <div className="flex items-center justify-center flex-col">
                 <AlertCircle className="w-12 h-12 text-red-500 mb-4" />
-                <h2 className="text-xl font-bold mb-2">Error Loading Data</h2>
-                <p className="text-gray-600 mb-4 text-center">
+                <h2 className="text-xl font-bold mb-2 dark:text-white">Error Loading Data</h2>
+                <p className="text-gray-600 dark:text-gray-400 mb-4 text-center">
                   {accountsError?.message || transactionsError?.message || categoriesError?.message}
                 </p>
                 <Button onClick={() => window.location.reload()}>
@@ -113,16 +115,17 @@ export default function Index() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow-sm border-b">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <header className="bg-white dark:bg-gray-800 shadow-sm border-b dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
               <Wallet className="w-8 h-8 text-blue-600 mr-3" />
-              <h1 className="text-xl font-semibold">Finance Dashboard</h1>
+              <h1 className="text-xl font-semibold dark:text-white">Finance Dashboard</h1>
             </div>
             <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-600">{user.email}</span>
+              <ThemeToggle />
+              <span className="text-sm text-gray-600 dark:text-gray-300">{user.email}</span>
               <Button variant="ghost" size="sm" onClick={handleSignOut}>
                 <LogOut className="w-4 h-4 mr-2" />
                 Sign Out
@@ -135,7 +138,7 @@ export default function Index() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {isLoading ? (
           <div>
-            <p className="text-center mb-4">Loading your financial data...</p>
+            <p className="text-center mb-4 dark:text-white">Loading your financial data...</p>
             <div className="space-y-6">
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                 {[...Array(4)].map((_, i) => (
@@ -156,7 +159,7 @@ export default function Index() {
         ) : (
           <div className="space-y-6">
             <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-bold">Financial Overview</h2>
+              <h2 className="text-2xl font-bold dark:text-white">Financial Overview</h2>
               <div className="flex gap-2">
                 <AddTransactionModal userId={user.id} />
               </div>

@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Wallet } from 'lucide-react'
 import { toast } from 'sonner'
 import { useNavigate } from 'react-router-dom'
+import { ThemeToggle } from '@/components/theme-toggle'
 
 export default function Auth() {
   const [isSignUp, setIsSignUp] = useState(false)
@@ -39,14 +40,17 @@ export default function Auth() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+      <div className="absolute top-4 right-4">
+        <ThemeToggle />
+      </div>
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <Wallet className="w-12 h-12 mx-auto mb-4 text-blue-600" />
-          <CardTitle className="text-2xl">
+          <CardTitle className="text-2xl dark:text-white">
             {isSignUp ? 'Create Account' : 'Welcome Back'}
           </CardTitle>
-          <CardDescription>
+          <CardDescription className="dark:text-gray-400">
             {isSignUp ? 'Sign up to start managing your finances' : 'Sign in to your account'}
           </CardDescription>
         </CardHeader>
