@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/hooks/useAuth'
 import { useAccounts } from '@/hooks/useAccounts'
@@ -10,18 +10,26 @@ import { BudgetOverview } from '@/components/dashboard/BudgetOverview'
 import { SpendingChart } from '@/components/dashboard/SpendingChart'
 import { AddTransactionModal } from '@/components/dashboard/AddTransactionModal'
 import { AccountsList } from '@/components/dashboard/AccountsList'
+import { GoalTracker } from '@/components/dashboard/GoalTracker'
+import { InvestmentTracker } from '@/components/dashboard/InvestmentTracker'
+import { DebtTracker } from '@/components/dashboard/DebtTracker'
+import { AdvancedFilters } from '@/components/dashboard/AdvancedFilters'
+import { ExportReports } from '@/components/dashboard/ExportReports'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Card, CardContent } from '@/components/ui/card'
-import { LogOut, Wallet, AlertCircle } from 'lucide-react'
+import { LogOut, Wallet, AlertCircle, TrendingUp, Target, CreditCard } from 'lucide-react'
 import { toast } from 'sonner'
 import { ThemeToggle } from '@/components/theme-toggle'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 export default function Index() {
   const { user, signOut } = useAuth()
   const { accounts, isLoading: accountsLoading, error: accountsError } = useAccounts(user?.id || '')
   const { transactions, isLoading: transactionsLoading, error: transactionsError } = useTransactions(user?.id || '')
   const { categories, isLoading: categoriesLoading, error: categoriesError } = useCategories(user?.id || '')
+  const [activeTab, setActiveTab] = useState('overview')
+  const [filteredTransactions, setFilteredTransactions] = useState(transactions || [])
 
   useEffect(() => {
     if (!user) return
@@ -41,6 +49,10 @@ export default function Index() {
     }
   }, [user])
 
+  useEffect(() => {
+    setFilteredTransactions(transactions || [])
+  }, [transactions])
+
   const handleSignOut = async () => {
     const { error } = await signOut()
     if (error) {
@@ -48,6 +60,35 @@ export default function Index() {
     } else {
       toast.success('Signed out successfully')
     }
+  }
+
+  const handleFilterChange = (filters: any) => {
+    let filtered = transactions || []
+    
+    if (filters.dateRange?.from && filters.dateRange?.to) {
+      filtered = filtered.filter(t => {
+        const transactionDate = new Date(t.date)
+        return transactionDate >= filters.dateRange.from && transactionDate <= filters.dateRange.to
+      })
+    }
+    
+    if (filters.category && filters.category !== 'all') {
+      filtered = filtered.filter(t => t.category?.name?.toLowerCase() === filters.category)
+    }
+    
+    if (filters.type && filters.type !== 'all') {
+      filtered = filtered.filter(t => t.type === filters.type)
+    }
+    
+    if (filters.amountMin) {
+      filtered = filtered.filter(t => t.amount >= filters.amountMin)
+    }
+    
+    if (filters.amountMax) {
+      filtered = filtered.filter(t => t.amount <= filters.amountMax)
+    }
+    
+    setFilteredTransactions(filtered)
   }
 
   if (!user) {
@@ -158,30 +199,95 @@ export default function Index() {
           </div>
         ) : (
           <div className="space-y-6">
-            <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-bold dark:text-white">Financial Overview</h2>
-              <div className="flex gap-2">
-                <AddTransactionModal userId={user.id} />
-              </div>
-            </div>
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <TabsList className="grid w-full grid-cols-4 lg:grid-cols-7">
+                <TabsTrigger value="overview">Overview</TabsTrigger>
+                <TabsTrigger value="transactions">Transactions</TabsTrigger>
+                <TabsTrigger value="goals">Goals</TabsTrigger>
+                <TabsTrigger value="investments">Investments</TabsTrigger>
+                <TabsTrigger value="debt">Debt</TabsTrigger>
+                <TabsTrigger value="reports">Reports</TabsTrigger>
+                <TabsTrigger value="analytics">Analytics</TabsTrigger>
+              </TabsList>
 
-            <SummaryCards accounts={accounts || []} transactions={transactions || []} />
+              <TabsContent value="overview" className="space-y-6">
+                <div className="flex justify-between items-center">
+                  <h2 className="text-2xl font-bold dark:text-white">Financial Overview</h2>
+                  <div className="flex gap-2">
+                    <AddTransactionModal userId={user.id} />
+                  </div>
+                </div>
 
-            <div className="grid gap-6 lg:grid-cols-2">
-              <AccountsList userId={user.id} />
-              <SpendingChart transactions={transactions || []} />
-            </div>
+                <SummaryCards accounts={accounts || []} transactions={transactions || []} />
+                
+                <AdvancedFilters onFilterChange={handleFilterChange} />
 
-            <div className="grid gap-6 lg:grid-cols-2">
-              <BudgetOverview 
-                categories={categories || []} 
-                transactions={transactions || []} 
-              />
-              <TransactionList 
-                transactions={transactions || []} 
-                isLoading={transactionsLoading} 
-              />
-            </div>
+                <div className="grid gap-6 lg:grid-cols-2">
+                  <AccountsList userId={user.id} />
+                  <SpendingChart transactions={filteredTransactions || []} />
+                </div>
+
+                <div className="grid gap-6 lg:grid-cols-2">
+                  <BudgetOverview 
+                    categories={categories || []} 
+                    transactions={filteredTransactions || []} 
+                  />
+                  <TransactionList 
+                    transactions={filteredTransactions || []} 
+                    isLoading={transactionsLoading} 
+                  />
+                </div>
+              </TabsContent>
+
+              <TabsContent value="transactions" className="space-y-6">
+                <div className="flex justify-between items-center">
+                  <h2 className="text-2xl font-bold dark:text-white">All Transactions</h2>
+                  <AddTransactionModal userId={user.id} />
+                </div>
+                
+                <AdvancedFilters onFilterChange={handleFilterChange} />
+                
+                <TransactionList 
+                  transactions={filteredTransactions || []} 
+                  isLoading={transactionsLoading} 
+                />
+              </TabsContent>
+
+              <TabsContent value="goals" className="space-y-6">
+                <h2 className="text-2xl font-bold dark:text-white">Savings Goals</h2>
+                <GoalTracker userId={user.id} />
+              </TabsContent>
+
+              <TabsContent value="investments" className="space-y-6">
+                <h2 className="text-2xl font-bold dark:text-white">Investment Portfolio</h2>
+                <InvestmentTracker userId={user.id} />
+              </TabsContent>
+
+              <TabsContent value="debt" className="space-y-6">
+                <h2 className="text-2xl font-bold dark:text-white">Debt Management</h2>
+                <DebtTracker userId={user.id} />
+              </TabsContent>
+
+              <TabsContent value="reports" className="space-y-6">
+                <h2 className="text-2xl font-bold dark:text-white">Reports & Export</h2>
+                <ExportReports 
+                  transactions={transactions || []} 
+                  accounts={accounts || []}
+                  categories={categories || []}
+                />
+              </TabsContent>
+
+              <TabsContent value="analytics" className="space-y-6">
+                <h2 className="text-2xl font-bold dark:text-white">Advanced Analytics</h2>
+                <div className="grid gap-6 lg:grid-cols-2">
+                  <SpendingChart transactions={filteredTransactions || []} />
+                  <BudgetOverview 
+                    categories={categories || []} 
+                    transactions={filteredTransactions || []} 
+                  />
+                </div>
+              </TabsContent>
+            </Tabs>
           </div>
         )}
       </main>
